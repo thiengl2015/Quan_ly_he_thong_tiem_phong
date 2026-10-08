@@ -1,0 +1,27 @@
+# hệ điều hành và trình soạn thảo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# môi trường và khoá: không đưa lên kho
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# phụ thuộc và bản dựng
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+coverage/
+
+# kết quả chạy thử kiểm gói và Sổ Ước lượng sinh tự động
+ket-qua-kiem-goi/
+so-uoc-luong.csv

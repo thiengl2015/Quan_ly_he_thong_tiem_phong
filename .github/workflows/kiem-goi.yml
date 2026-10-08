@@ -1,0 +1,42 @@
+name: kiem-goi
+
+on:
+  push:
+    tags:
+      - "goi-*"
+      - "review-cheo"
+  workflow_dispatch:
+    inputs:
+      goi:
+        description: "Gói cần kiểm"
+        required: true
+        type: choice
+        options: ["2", "3", "4", "5", "6", "review-cheo"]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  kiem-goi:
+    name: kiem-goi
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kiểm gói, sinh Sổ Ước lượng và sáu con số
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SE358_GOI: ${{ github.event_name == 'workflow_dispatch' && inputs.goi || github.ref_name }}
+        run: python3 scripts/kiem_goi.py --ra-thu-muc ket-qua-kiem-goi
+      - name: Đính Sổ Ước lượng vào kết quả
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: so-uoc-luong
+          path: |
+            ket-qua-kiem-goi/so-uoc-luong.csv
+            ket-qua-kiem-goi/ket-qua.md
+          if-no-files-found: warn
+          retention-days: 90

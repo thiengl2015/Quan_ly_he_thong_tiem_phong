@@ -1,0 +1,67 @@
+name: Hạng mục
+description: Một hạng mục của backlog, kèm ước lượng giờ công dạng khoảng.
+title: "HM: "
+labels: ["hang-muc"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ghi ước lượng ngay khi tạo hạng mục, không sửa về sau. Gắn milestone của sprint (Sprint 1, 2, 3) ở cột bên phải.
+        Số thập phân dùng dấu phẩy hoặc dấu chấm, ví dụ `2,5`.
+  - type: textarea
+    id: cau-chuyen
+    attributes:
+      label: Câu chuyện người dùng
+      description: Bắt buộc từ Sprint 1.
+      placeholder: "Là <vai người dùng>, tôi muốn <việc cần làm> để <giá trị nhận được>."
+    validations:
+      required: false
+  - type: textarea
+    id: tieu-chi
+    attributes:
+      label: Tiêu chí chấp nhận
+      description: Mỗi tiêu chí một khối Cho trước – Khi – Thì. Bắt buộc từ Sprint 1.
+      value: |
+        Cho trước 
+        Khi 
+        Thì 
+    validations:
+      required: false
+  - type: input
+    id: uoc-thap
+    attributes:
+      label: Ước lượng thấp (giờ công)
+      placeholder: "ví dụ 5"
+    validations:
+      required: true
+  - type: input
+    id: uoc-kha-nang
+    attributes:
+      label: Ước lượng khả năng nhất (giờ công)
+      placeholder: "ví dụ 8"
+    validations:
+      required: true
+  - type: input
+    id: uoc-cao
+    attributes:
+      label: Ước lượng cao (giờ công)
+      placeholder: "ví dụ 14"
+    validations:
+      required: true
+  - type: dropdown
+    id: cach-lam
+    attributes:
+      label: Cách làm
+      options:
+        - tác tử
+        - tay
+    validations:
+      required: true
+  - type: input
+    id: nguoi-phu-trach
+    attributes:
+      label: Người phụ trách (mã, ví dụ N07-B)
+      description: Ghi mã bút danh, không ghi tên hay tài khoản. Có thể để trống và điền sau.
+      placeholder: "N07-B"
+    validations:
+      required: false
