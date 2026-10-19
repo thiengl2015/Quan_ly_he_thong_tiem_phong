@@ -1,0 +1,590 @@
+# Quản lý Hệ thống Tiêm phòng - Java Spring Boot Development Rules
+
+## Project Information
+- Project Name: Vaccination Management System (Quản lý Hệ thống Tiêm phòng)
+- Type: SE358 Group Project - Software Engineering Project Management
+- Course: SE358 - Software Development Project Management
+- Repository: https://github.com/thiengl2015/Quan_ly_he_thong_tiem_phong
+
+## Java & Spring Boot Stack
+- Java Version: 21 LTS (latest)
+- Spring Boot: 3.4.x (latest stable)
+- Build Tool: Maven (pom.xml)
+- IDE: Cursor IDE with this .cursorrules
+
+## Database & ORM
+- Database: MySQL 8.0+
+- ORM: Spring Data JPA with Hibernate
+- Migrations: Flyway for schema management
+- Naming: snake_case for tables (user_profiles, vaccination_schedules)
+
+## Project Structure
+```
+src/main/java/com/example/vaccination/
+  ├── config/           (Spring configuration, Security config)
+  ├── controller/       (REST API endpoints)
+  ├── service/          (Business logic, vaccination service)
+  ├── repository/       (Spring Data JPA repositories)
+  ├── model/entity/     (JPA entities - User, Vaccination, Schedule)
+  ├── dto/              (Data Transfer Objects - request/response)
+  ├── exception/        (Custom exceptions, error handling)
+  ├── security/         (JWT, authentication, authorization)
+  ├── util/             (Utility classes, helpers)
+  └── Application.java  (Main Spring Boot application)
+
+src/main/resources/
+  ├── application.properties
+  ├── application-dev.properties
+  ├── application-prod.properties
+  ├── db/migration/     (Flyway SQL migration files)
+  └── messages.properties (i18n messages)
+
+src/test/java/
+  └── (mirror structure of src/main/java with Test suffix)
+```
+
+## Code Standards & Conventions
+
+### Naming Conventions
+1. Classes: PascalCase (UserController, VaccinationService)
+2. Methods/Variables: camelCase (getUserById, vaccinationList)
+3. Constants: UPPER_SNAKE_CASE (MAX_RETRIES, DEFAULT_TIMEOUT)
+4. Database Tables: snake_case (user_profiles, vaccination_records)
+5. Database Columns: snake_case (user_id, created_at, updated_at)
+6. Packages: lowercase with dots (com.example.vaccination.controller)
+
+### Class & Method Standards
+1. Use meaningful, descriptive names - avoid abbreviations
+2. PascalCase for class names
+3. camelCase for method names
+4. Keep methods focused and readable (max 30 lines)
+5. Use final keyword for immutable fields and parameters
+6. Use generics, avoid raw types
+7. Private fields, public getters/setters or @Getter @Setter
+8. Add @Slf4j or Logger for all classes that log
+
+### Annotations & Imports
+1. Use @Component, @Service, @Repository, @Controller annotations correctly
+2. Prefer constructor injection over @Autowired
+3. Use @Configuration for bean definitions
+4. Use @Value for simple properties, @ConfigurationProperties for complex
+5. Don't use wildcard imports (java.util.*)
+6. Organize imports: java → javax → spring → custom packages
+
+## Spring Boot Best Practices
+
+### Application Configuration
+1. Use application.properties or application.yml (NOT both)
+2. Use profiles: application-dev.properties, application-prod.properties
+3. Never commit secrets - use environment variables or .env files
+4. Use @ConfigurationProperties for complex configurations
+5. Example properties:
+   ```
+   spring.application.name=vaccination-system
+   spring.jpa.hibernate.ddl-auto=validate
+   spring.jpa.show-sql=false
+   spring.datasource.hikari.maximum-pool-size=20
+   logging.level.com.example.vaccination=DEBUG
+   ```
+
+### Spring Data JPA & Hibernate
+1. Create entities in model/entity/ package
+2. Use @Entity, @Table, @Id, @GeneratedValue annotations
+3. Use @Column with proper mapping (nullable, unique, length)
+4. Use @ManyToOne, @OneToMany, @ManyToMany for relationships
+5. Use @Lazy for lazy-loaded relationships
+6. Implement Serializable for entities
+7. Use Spring Data JPA repositories (extends JpaRepository<T, ID>)
+8. Create custom @Query methods only when necessary
+9. Use @Transactional for operations requiring transactions
+10. Use @Transactional(readOnly=true) for read operations
+
+### REST API Design (Controllers)
+1. Use @RestController for REST endpoints
+2. Use @RequestMapping for base path, specific methods for actions
+3. Use @GetMapping, @PostMapping, @PutMapping, @DeleteMapping
+4. Return ResponseEntity<T> for proper HTTP status codes
+5. Use @PathVariable for URL parameters
+6. Use @RequestParam for query parameters
+7. Use @RequestBody with @Valid for request validation
+8. Create separate DTO classes for requests/responses
+9. Example endpoints:
+   ```
+   GET    /api/vaccinations              (list all)
+   GET    /api/vaccinations/{id}         (get one)
+   POST   /api/vaccinations              (create)
+   PUT    /api/vaccinations/{id}         (update)
+   DELETE /api/vaccinations/{id}         (delete)
+   ```
+
+### Services & Business Logic
+1. Put business logic in @Service classes
+2. Name services with Service suffix (VaccinationService, UserService)
+3. Use @Transactional for multi-step operations
+4. Throw custom exceptions for business errors
+5. Keep services focused on one domain
+
+### Exception Handling
+1. Create custom exceptions extending RuntimeException
+2. Use @ControllerAdvice for global exception handling
+3. Use @ExceptionHandler for specific exceptions
+4. Return appropriate HTTP status codes:
+   - 400 Bad Request (validation error)
+   - 401 Unauthorized (auth failure)
+   - 403 Forbidden (permission denied)
+   - 404 Not Found (resource not found)
+   - 500 Internal Server Error (unexpected error)
+5. Log exceptions with stack trace at ERROR level
+6. Don't expose internal exceptions to client
+7. Example custom exception:
+   ```java
+   public class VaccinationNotFoundException extends RuntimeException {
+     public VaccinationNotFoundException(Long id) {
+       super("Vaccination not found with id: " + id);
+     }
+   }
+   ```
+
+### Logging
+1. Use SLF4J with Logback (built-in with Spring Boot)
+2. Use @Slf4j annotation from Lombok or Logger.getLogger()
+3. Log levels: DEBUG (dev details), INFO (important), WARN (potential issues), ERROR (failures)
+4. Don't log sensitive data (passwords, tokens, personal info)
+5. Use structured logging with parameters
+6. Example:
+   ```java
+   log.debug("Processing vaccination for user id: {}", userId);
+   log.info("Vaccination created successfully with id: {}", vaccination.getId());
+   log.error("Failed to send SMS reminder", exception);
+   ```
+
+## Security & Authentication
+
+### Spring Security
+1. Use Spring Security for authentication/authorization
+2. Implement JWT token-based authentication for stateless APIs
+3. Use @EnableWebSecurity for security configuration
+4. Configure SecurityFilterChain bean
+5. Use BCryptPasswordEncoder for password hashing
+6. Never store plain text passwords
+
+### JWT Authentication
+1. Generate JWT tokens on successful login
+2. Validate JWT tokens on each request
+3. Use JWT filters for authentication
+4. Token expiration: 1-24 hours depending on use case
+5. Include user roles/authorities in JWT claims
+6. Don't store sensitive data in JWT payload (it's encoded, not encrypted)
+
+### Method-Level Security
+1. Use @PreAuthorize for method access control
+2. Use @Secured for role-based access
+3. Use @PostAuthorize for return value filtering
+4. Example:
+   ```java
+   @PreAuthorize("hasRole('ADMIN')")
+   public void deleteVaccination(Long id) { }
+   
+   @PreAuthorize("hasAuthority('EDIT_VACCINATION')")
+   public Vaccination updateVaccination(Vaccination vac) { }
+   ```
+
+### Input Validation
+1. Use @Valid with @NotNull, @NotBlank, @Email, @Min, @Max
+2. Validate all user inputs in DTOs
+3. Use custom validators for complex validation
+4. Return 400 Bad Request for validation errors
+5. Example DTO:
+   ```java
+   @Data
+   public class VaccinationDTO {
+     @NotNull(message = "User ID is required")
+     private Long userId;
+     
+     @NotBlank(message = "Vaccine name is required")
+     private String vaccineName;
+     
+     @Email(message = "Email should be valid")
+     private String email;
+   }
+   ```
+
+## Testing
+
+### Unit Tests (JUnit 5 + Mockito)
+1. Use JUnit 5 (Jupiter) for unit tests
+2. Use Mockito for mocking dependencies
+3. Test class naming: <Class>Test (e.g., VaccinationServiceTest)
+4. Test method naming: test<MethodName><Condition><ExpectedResult>
+5. Use @Mock for dependencies, @InjectMocks for class under test
+6. Example:
+   ```java
+   @ExtendWith(MockitoExtension.class)
+   class VaccinationServiceTest {
+     @Mock
+     private VaccinationRepository vaccinationRepository;
+     
+     @InjectMocks
+     private VaccinationService vaccinationService;
+     
+     @Test
+     void testGetVaccinationByIdWhenExistsThenReturnVaccination() {
+       Long id = 1L;
+       Vaccination vaccination = new Vaccination();
+       when(vaccinationRepository.findById(id)).thenReturn(Optional.of(vaccination));
+       
+       Vaccination result = vaccinationService.getById(id);
+       
+       assertNotNull(result);
+       assertEquals(id, result.getId());
+     }
+   }
+   ```
+
+### Integration Tests
+1. Use @SpringBootTest for integration tests
+2. Use @WebMvcTest for controller testing
+3. Use @DataJpaTest for repository testing
+4. Use @MockMvc for testing REST endpoints
+5. Mock external services (email, SMS, external APIs)
+6. Use test containers for real database testing if needed
+
+### Test Coverage
+1. Aim for 80%+ code coverage
+2. Test both happy path and error scenarios
+3. Test edge cases and boundary conditions
+4. Write tests for public methods and important logic
+5. Don't test getters/setters unless custom logic
+
+## Database & Migrations (Flyway)
+
+### Migration Files
+1. Location: src/main/resources/db/migration/
+2. Naming: V<version>__<description>.sql (e.g., V1_0__Initial_schema.sql)
+3. Versions increment: V1_0, V1_1, V2_0, etc.
+4. Use descriptive names
+5. One logical change per migration file
+6. Never modify committed migration files
+
+### SQL Best Practices
+1. Use snake_case for table and column names
+2. Always add created_at and updated_at timestamps
+3. Use appropriate data types (VARCHAR(255), INT, BIGINT, BOOLEAN, etc.)
+4. Add NOT NULL constraints where appropriate
+5. Add UNIQUE constraints for unique fields
+6. Create indexes on frequently queried columns
+7. Use FOREIGN KEY constraints for relationships
+8. Example migration:
+   ```sql
+   CREATE TABLE vaccination_records (
+     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+     user_id BIGINT NOT NULL,
+     vaccine_name VARCHAR(255) NOT NULL,
+     vaccination_date DATETIME NOT NULL,
+     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+     FOREIGN KEY (user_id) REFERENCES users(id),
+     INDEX idx_user_id (user_id),
+     INDEX idx_vaccination_date (vaccination_date)
+   );
+   ```
+
+## Performance & Optimization
+
+### Database Optimization
+1. Use pagination for large result sets (@PageableDefault)
+2. Use @Query with projections to fetch only needed columns
+3. Avoid N+1 queries - use JOIN FETCH or @EntityGraph
+4. Create indexes on frequently queried columns
+5. Use readOnly=true for read-only transactions
+6. Cache frequently accessed data with @Cacheable
+
+### API Response Optimization
+1. Use DTOs to avoid exposing entities
+2. Include pagination info in list responses
+3. Use compression for large responses
+4. Include proper cache headers
+
+### Caching
+1. Use @Cacheable for read-heavy operations
+2. Use @CachePut for cache updates
+3. Use @CacheEvict for cache invalidation
+4. Example:
+   ```java
+   @Cacheable(value = "vaccinations", key = "#id")
+   public Vaccination getById(Long id) { }
+   
+   @CachePut(value = "vaccinations", key = "#vaccination.id")
+   public Vaccination update(Vaccination vaccination) { }
+   
+   @CacheEvict(value = "vaccinations", key = "#id")
+   public void deleteById(Long id) { }
+   ```
+
+## SE358 Requirements & Compliance
+
+### Team Collaboration Rules
+1. Tác tử không được merge - người khác phải merge
+2. Mỗi PR phải ghi: Tác tử, Điều khiển, Review
+3. Tác tử chỉ làm việc trên branch riêng, không access production
+
+### PR Requirements
+1. Create log file: log-tac-tu/PR-<number>.md
+2. Include PR description with:
+   - Tool name (e.g., Claude, Copilot, or "không")
+   - Controller code (e.g., N07-B)
+   - Reviewer code (e.g., N07-A)
+   - Close issue: Đóng #<number>
+   - Actual hours worked
+   - Lines of code
+
+### Code Documentation
+1. Write JSDoc/JavaDoc for public methods
+2. Document complex logic with inline comments
+3. Keep comments up to date with code changes
+4. Use Vietnamese in team communication, English in code/comments
+
+### Issue Tracking
+1. Create issues with user stories
+2. Use acceptance criteria: Given-When-Then format
+3. Estimate with three-point scale (low, likely, high)
+4. Assign to team members using codes (N07-A, N07-B, etc.)
+5. Don't use real names, MSSV, or emails in repo
+
+### Git Workflow
+1. Branch names: feature/xyz, bugfix/xyz, docs/xyz
+2. Commit messages: conventional commits (feat:, fix:, docs:, etc.)
+3. Pull request required before merge to main
+4. At least one review required
+5. Automated checks must pass before merge
+
+## Dependencies & Libraries (pom.xml)
+
+### Core Spring Boot Dependencies
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>com.mysql</groupId>
+  <artifactId>mysql-connector-j</artifactId>
+  <scope>runtime</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.flywaydb</groupId>
+  <artifactId>flyway-mysql</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.projectlombok</groupId>
+  <artifactId>lombok</artifactId>
+  <optional>true</optional>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-api</artifactId>
+  <version>0.12.3</version>
+</dependency>
+```
+
+### Testing Dependencies
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-test</artifactId>
+  <scope>test</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.mockito</groupId>
+  <artifactId>mockito-core</artifactId>
+  <scope>test</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.mockito</groupId>
+  <artifactId>mockito-junit-jupiter</artifactId>
+  <scope>test</scope>
+</dependency>
+```
+
+## Build & Deployment
+
+### Maven Commands
+```bash
+# Build project
+./mvnw clean install
+
+# Run tests
+./mvnw test
+
+# Run specific test class
+./mvnw test -Dtest=VaccinationServiceTest
+
+# Run application
+./mvnw spring-boot:run
+
+# Build production JAR
+./mvnw clean package -DskipTests
+
+# Check dependency security
+./mvnw dependency-check:check
+```
+
+### Application Properties
+```properties
+# Server
+server.port=8080
+server.servlet.context-path=/api
+
+# Database
+spring.datasource.url=jdbc:mysql://localhost:3306/vaccination_db
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+
+# JWT
+app.jwt.secret=${JWT_SECRET}
+app.jwt.expiration=86400000
+
+# Logging
+logging.level.root=INFO
+logging.level.com.example.vaccination=DEBUG
+
+# Flyway
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+```
+
+## Code Quality & CI/CD
+
+### Pre-commit Checklist
+1. All tests pass locally: `./mvnw test`
+2. No hardcoded secrets or credentials
+3. No email addresses or MSSV in code
+4. Meaningful commit messages
+5. Code follows this .cursorrules
+6. Log file created (log-tac-tu/PR-XX.md)
+7. PR description complete with 3 required fields
+
+### Automated Checks (GitHub Actions)
+- `kiem-pr` runs on every PR
+- Checks code style, tests, log files
+- PR can't merge if checks fail
+
+## Tools & IDE Setup
+
+### Cursor IDE Extensions/Settings
+- Java Extension Pack
+- Spring Boot Extension Pack
+- Lombok annotation processor enabled
+- Formatter: Google Java Format or Spotless
+
+### Required Tools
+- Java 21 JDK (SDKMAN or manual installation)
+- Maven 3.9+
+- Git
+
+### IDE Formatting
+- Line length: 120 characters
+- Indentation: 4 spaces (NOT tabs)
+- Organize imports on save
+- Format code on save
+
+## Common Patterns & Examples
+
+### Pagination Example
+```java
+@GetMapping
+public Page<VaccinationDTO> listVaccinations(
+    @PageableDefault(size = 20, page = 0) Pageable pageable) {
+  return vaccinationService.getAll(pageable)
+    .map(VaccinationMapper::toDTO);
+}
+```
+
+### Error Handling Example
+```java
+@ExceptionHandler(VaccinationNotFoundException.class)
+public ResponseEntity<ErrorResponse> handleNotFound(VaccinationNotFoundException e) {
+  ErrorResponse error = new ErrorResponse("NOT_FOUND", e.getMessage());
+  return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+}
+```
+
+### Transaction Example
+```java
+@Service
+@Transactional
+public class VaccinationService {
+  @Transactional(readOnly = true)
+  public Vaccination getById(Long id) {
+    return vaccinationRepository.findById(id)
+      .orElseThrow(() -> new VaccinationNotFoundException(id));
+  }
+  
+  public Vaccination create(VaccinationDTO dto) {
+    Vaccination vaccination = new Vaccination();
+    vaccination.setVaccineName(dto.getVaccineName());
+    return vaccinationRepository.save(vaccination);
+  }
+}
+```
+
+### Constructor Injection Example
+```java
+@Service
+public class VaccinationService {
+  private final VaccinationRepository vaccinationRepository;
+  private final UserRepository userRepository;
+  
+  public VaccinationService(
+      VaccinationRepository vaccinationRepository,
+      UserRepository userRepository) {
+    this.vaccinationRepository = vaccinationRepository;
+    this.userRepository = userRepository;
+  }
+}
+```
+
+## Resources & Documentation
+- Spring Boot Docs: https://spring.io/projects/spring-boot
+- Spring Data JPA: https://spring.io/projects/spring-data-jpa
+- Spring Security: https://spring.io/projects/spring-security
+- Flyway: https://flywaydb.org/
+- JUnit 5: https://junit.org/junit5/
+- Mockito: https://mockito.org/
+
+## Summary for AI Assistants (Claude, Copilot)
+
+When helping with this project:
+1. **Follow Java conventions** - PascalCase classes, camelCase methods
+2. **Use Spring Boot patterns** - @Service, @Repository, @Controller
+3. **Implement proper error handling** - Custom exceptions, @ControllerAdvice
+4. **Write tests** - Unit tests with Mockito, integration tests with @SpringBootTest
+5. **Security first** - Use Spring Security, hash passwords, validate input
+6. **Database migrations** - Use Flyway, never modify committed migrations
+7. **SE358 compliance** - Follow team rules, create log files, proper PR descriptions
+8. **Code quality** - 80%+ test coverage, meaningful names, documented code
+9. **Performance** - Pagination, avoid N+1 queries, use caching when appropriate
+10. **Documentation** - JSDoc for public methods, clear commit messages, up-to-date READMEs

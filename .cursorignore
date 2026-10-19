@@ -1,0 +1,162 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+pom.xml.bak
+release.properties
+dependency-reduced-pom.xml
+.flattened-pom.xml
+.m2/
+
+# Gradle
+build/
+.gradle/
+*.gradle.lock
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+*.iml
+*.classpath
+*.project
+.factorypath
+.settings/
+.vscode/
+*.swp
+*.swo
+*~
+
+# IDE - VSCode
+.vscode/
+.vscode/settings.json
+.vscode/extensions.json
+*.code-workspace
+
+# IDE - Cursor
+.cursor/
+
+# Operating System
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.AppleDouble
+.LSOverride
+._*
+
+# Runtime & Logs
+*.log
+*.log.*
+/logs/
+/log/
+*.out
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+application-prod.properties
+application-prod.yml
+secrets/
+.aws/
+.ssh/
+.gnupg/
+
+# Node modules (if using npm for frontend)
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.h2.db
+/db/
+database.mv.db
+database.trace.db
+
+# Temp & Build Cache
+tmp/
+temp/
+*.tmp
+.cache/
+.pytest_cache/
+dist/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose.override.yml
+Dockerfile.dev
+
+# Private/Test files
+*.backup
+*.bak
+test-results/
+coverage/
+.nyc_output/
+
+# Java specific
+*.ctxt
+.mtj.tmp/
+*.jar
+*.nar
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Spring Boot specific
+.spring/
+spring-shell.log
+application-*.properties
+!application-dev.properties
+
+# Files that should never be committed
+**/.classpath
+**/.project
+**/.settings
+**/bin/
+**/out/
+**/build/
+**/.gradle/
+
+# Sensitive files
+credentials.json
+credentials.yaml
+private-key.pem
+keystore.jks
+truststore.jks
+
+# Exclude specific SE358 files from indexing (but keep in repo)
+phieu-su-co/dot*_*.md
+log-tac-tu/*.md
+.se358/temp/
+.se358/cache/
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
